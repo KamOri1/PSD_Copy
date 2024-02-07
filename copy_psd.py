@@ -20,14 +20,24 @@ class CopyPSD:
         self.app.resizable(False, False)
 
     def label_info(self):
-        text_var = tk.StringVar(value=self.src_file)
+        if self.src_file.endswith('psd'):
+            text_src_file = self.src_file
+            text_color = '#FFFFFF'
+
+        else:
+            text_src_file = "Invalid file format"
+            text_color = '#FF0033'
+
+
+        text_var = tk.StringVar(value=text_src_file)
         label = ctk.CTkLabel(master=self.app,
                              textvariable=text_var,
                              width=600,
                              height=50,
                              fg_color=("#000", "#000"),
                              corner_radius=8,
-                             wraplength=600)
+                             wraplength=600,
+                             text_color=text_color)
         label.place(relx=0.5, rely=0.06, anchor=tk.CENTER)
 
     def foto(self):
@@ -58,38 +68,42 @@ class CopyPSD:
                    'SK', 'HU', ]
         org = self.src_file
         filename = os.path.basename(org)
+        if filename.endswith('.psd'):
+            for name in country:
+                psd_file = self.src_file.replace(filename, name.lower() + filename)
+                file_catalog = psd_file.replace(name.lower() + filename, "PSD_Catalog")
+                if self.create_is_ok:
+                    if not os.path.exists(file_catalog):
+                        os.mkdir(file_catalog)
+                    if os.path.exists(file_catalog + '\\' + name.lower() + filename):
 
-        for name in country:
-            psd_file = self.src_file.replace(filename, name.lower() + filename)
-            file_catalog = psd_file.replace(name.lower() + filename, "PSD_Catalog")
-            if self.create_is_ok:
-                if not os.path.exists(file_catalog):
-                    os.mkdir(file_catalog)
-                if os.path.exists(file_catalog + '\\' + name.lower() + filename):
+                        continue
+                    else:
+                        os.mkdir(file_catalog + '\\' + name.upper())
+                        shutil.copy2(self.src_file, file_catalog + '\\' + name.upper() + '\\' + name.lower() + filename)
 
-                    continue
                 else:
-                    os.mkdir(file_catalog + '\\' + name.upper())
-                    shutil.copy2(self.src_file, file_catalog + '\\' + name.upper() + '\\' + name.lower() + filename)
+                    if os.path.exists(psd_file):
+                        print(f'File: {name.lower() + filename} alredy exists')
+                        continue
+                    else:
+                        shutil.copy2(self.src_file, self.src_file.replace(filename, name.lower() + filename))
+                self.end_info('Files have been created', '#ffffff')
+        else:
+            self.end_info('Invalid file format', '#FF0033')
 
-            else:
-                if os.path.exists(psd_file):
-                    print(f'File: {name.lower() + filename} alredy exists')
-                    continue
-                else:
-                    shutil.copy2(self.src_file, self.src_file.replace(filename, name.lower() + filename))
-            self.end_info()
 
-    def end_info(self):
+    def end_info(self, text_var_, text_color):
 
-            text_var = tk.StringVar(value='Files have been created')
+            text_var = tk.StringVar(value=text_var_)
             label = ctk.CTkLabel(master=self.app,
                                  font=("Arial", 16),
                                  textvariable=text_var,
                                  width=190,
                                  height=50,
                                  fg_color=("#000", "#000"),
-                                 corner_radius=8)
+                                 corner_radius=8,
+                                 text_color=text_color)
             label.place(relx=0.838, rely=0.8, anchor=tk.CENTER)
 
 
@@ -116,4 +130,3 @@ class CopyPSD:
 
 
 
-#The files have been created
